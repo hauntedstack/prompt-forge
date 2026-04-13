@@ -1,34 +1,72 @@
-﻿# Prompt Forge
+# Prompt Forge
 
-A 5-phase prompt engineering pipeline that produces structurally validated, stress-tested prompts — not vibed into existence.
+A 4-pass prompt optimization engine that combines 7 techniques into a single pipeline — iterating until your prompt scores 5/5 across all quality dimensions.
 
-Prompt Forge is a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code) that runs as an automated pipeline inside your Claude session. Give it a task description, and it returns a production-ready prompt that has been through requirement analysis, quality calibration, structural validation, adversarial stress-testing, and optimal compression.
+Prompt Forge is a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code) that takes any prompt and runs it through decomposition, bracketing, adversarial validation, and compression. It doesn't just rewrite your prompt — it scores it, attacks it, and proves the final version is better.
 
-## Why this exists
+## How it works
 
-Most prompts are written in one pass and hoped for the best. Prompt Forge applies an engineering methodology: decompose the problem, generate quality boundaries, validate structure, attack from blind spots, then compress to natural density. Each phase catches failures the previous one missed.
+You give it a prompt. It returns an optimized version with a full scorecard showing exactly what improved and why.
 
-## The 5 Phases
+### The 5 Quality Dimensions
 
-| Phase | Name | What it does |
-|-------|------|--------------|
-| 1 | **Requirement Mapping** | Works backward from the desired outcome to identify every instruction the prompt must contain, flagging assumptions and risk nodes |
-| 2 | **Quality Space Mapping** | Generates a floor (worst plausible) and ceiling (best possible) version, then identifies the specific deltas that matter |
-| 3 | **Structural Validation** | Decomposes the prompt into functional components, classifies each as critical/reinforcing/redundant/decorative, and maps interactions |
-| 4 | **Adversarial Stress Test** | Attacks from angles that weren't optimized during construction — misfire analysis, absence audit, user divergence, model divergence |
-| 5 | **Optimal Compression** | Multi-round compression to natural density, with fidelity checks to ensure nothing critical was lost |
+Every prompt is scored 1–5 on each dimension:
 
-## What you get
+| Dim | Name | 1/5 | 5/5 |
+|-----|------|-----|-----|
+| K1 | **Clarity** | Ambiguous intent, LLM has to guess | Unambiguous intent, zero interpretation room |
+| K2 | **Specificity** | No constraints, generic output | Precise requirements: format, length, tone, scope |
+| K3 | **Structure** | Flat text block, no organization | Optimally organized for LLM cognition |
+| K4 | **Robustness** | Fails on edge cases | Explicit edge case handling, graceful degradation |
+| K5 | **Efficiency** | Redundant, bloated, wastes tokens | Every sentence carries unique value |
 
-- A **copy-paste ready prompt** with self-explanatory `[VARIABLE]` placeholders
-- A **compact build log** — one sentence per phase summarizing what was found and changed
+**Target: 5/5 across all dimensions. 25/25 total.**
+
+### The 4-Pass Pipeline
+
+**Pass 1 — Decomposition** breaks your prompt into components (critical, reinforcing, redundant, decorative), models how the LLM will actually process it, and gives an initial K1–K5 score.
+
+**Pass 2 — Bracketing & Prioritization** generates the worst plausible output (floor) and the optimal version (ceiling), analyzes every gap between them, then builds a prioritized constraint stack (P0/P1/P2).
+
+**Pass 3 — Optimization & Validation** writes the optimized prompt, then attacks every change with steelman counter-arguments. Changes that don't survive adversarial review get reverted or adjusted.
+
+**Pass 4 — Blind Spot Check & Compression** hunts for misfire risks, missing perspectives, and temporal fragility. Then compresses to natural density — the point where every remaining sentence carries unique value.
+
+### What you get
+
+```
+╔══════════════════════════════════════════════╗
+║          PROMPT FORGE — RESULT               ║
+╠══════════════════════════════════════════════╣
+║  K1 CLARITY:      [●●●●●] 2/5 → 5/5        ║
+║  K2 SPECIFICITY:  [●●●●●] 1/5 → 5/5        ║
+║  K3 STRUCTURE:    [●●●●●] 3/5 → 5/5        ║
+║  K4 ROBUSTNESS:   [●●●●●] 2/5 → 5/5        ║
+║  K5 EFFICIENCY:   [●●●●●] 3/5 → 5/5        ║
+║                                              ║
+║  TOTAL: 11/25 → 25/25                       ║
+╚══════════════════════════════════════════════╝
+```
+
+Plus the optimized prompt, a changelog, and a constraint satisfaction report.
+
+## The 7 Integrated Techniques
+
+Prompt Forge combines these prompt engineering techniques into a single pipeline:
+
+1. **Prompt Ablation Analysis** — component-level decomposition and classification
+2. **Recursive Audience Modeling** — models how the LLM processes the prompt
+3. **Generative Bracketing** — floor/ceiling generation for quality calibration
+4. **Constraint Priority Stack** — hierarchical requirement management (P0/P1/P2)
+5. **Adversarial Claim Decomposition** — steelman validation of every change
+6. **Orthogonal Critique Injection** — blind spot detection from unoptimized angles
+7. **Convergent Self-Distillation** — compression to natural information density
 
 ## Installation
 
 ### As a Claude Code skill
 
 ```bash
-# Clone to your Claude Code skills directory
 git clone https://github.com/hauntedstack/prompt-forge.git ~/.claude/skills/prompt-forge
 ```
 
@@ -36,36 +74,32 @@ Or copy `SKILL.md` directly into any skill directory that Claude Code reads from
 
 ### As a standalone reference
 
-The entire pipeline lives in a single file: [`SKILL.md`](./SKILL.md). You can read it, adapt the methodology to your own workflow, or use the phase structure as a mental checklist when writing prompts manually.
+The entire engine lives in a single file: [`SKILL.md`](./SKILL.md). You can read it, adapt the methodology, or use the pass structure as a checklist when optimizing prompts manually.
 
 ## Usage
 
-Once installed as a Claude Code skill, the pipeline triggers automatically when you:
+Once installed, the skill triggers when you ask Claude to optimize, improve, or evaluate a prompt. You can also say "prompt forge" or "5/5 prompt" directly.
 
-- Ask Claude to "create a prompt", "write a prompt", or "make me a prompt"
-- Describe a task where the deliverable is clearly a reusable prompt template
-- Say "prompt for [X]" in any language (English, Norwegian, etc.)
+After the initial run, you can iterate:
 
-### Example
-
-> "Make me a prompt that takes a messy meeting transcript and produces a structured action-item list with owners, deadlines, and dependencies."
-
-Claude will run all 5 phases and deliver the final prompt with a build log.
-
-### Improving an existing prompt
-
-If you provide a prompt you already have and ask for improvements, the pipeline enters at Phase 3 (structural validation) — skipping requirement mapping and quality calibration since you already have a working draft.
+- `focus K4` — re-run passes 3–4 with extra weight on robustness
+- `more robust` — re-run passes 2–4 with expanded edge case analysis
+- `shorter` — re-run pass 4 with aggressive compression
+- `explain [change]` — get a deeper rationale for a specific change
 
 ## Design principles
 
-- **Every phase earns its place.** Each phase catches a category of failure that previous phases miss.
-- **Don't over-engineer.** If a 2-sentence prompt would work, the pipeline says so.
-- **Maximum 4 variables.** Prompts should be self-contained and easy to use.
-- **No external dependencies.** The final prompt works when pasted directly — no API keys, no system prompts, no setup.
+- **Full pipeline, always.** All 4 passes run every time. No shortcuts.
+- **Show your work.** Every pass produces visible output so you can follow the reasoning.
+- **Preserve intent.** The optimized prompt does what you *meant*, not what you *wrote*.
+- **Score honestly.** 5/5 means the dimension cannot be improved without changing the task itself.
+- **Adversarial integrity.** Steelman arguments must be real counter-arguments, not strawmen.
+- **Compression ≠ shortening.** The goal is density (value per token), not brevity.
+- **Lift the floor.** If improving one dimension weakens another, prioritize the weakest.
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to improve the pipeline, add phases, or adapt it for specific domains.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## License
 
