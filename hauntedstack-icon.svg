@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ghost" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e0ff"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+
+  <!-- Glow effect -->
+  <circle cx="256" cy="230" r="200" fill="url(#glow)"/>
+
+  <!-- Code stack (brackets) -->
+  <text x="130" y="340" font-family="monospace" font-size="80" font-weight="bold" fill="#4c1d95" opacity="0.5">{</text>
+  <text x="320" y="340" font-family="monospace" font-size="80" font-weight="bold" fill="#4c1d95" opacity="0.5">}</text>
+  <text x="150" y="400" font-family="monospace" font-size="60" font-weight="bold" fill="#4c1d95" opacity="0.3">[</text>
+  <text x="310" y="400" font-family="monospace" font-size="60" font-weight="bold" fill="#4c1d95" opacity="0.3">]</text>
+  <text x="170" y="440" font-family="monospace" font-size="45" font-weight="bold" fill="#4c1d95" opacity="0.2">&lt;</text>
+  <text x="305" y="440" font-family="monospace" font-size="45" font-weight="bold" fill="#4c1d95" opacity="0.2">/&gt;</text>
+
+  <!-- Ghost body -->
+  <path d="M256 100
+           C190 100 140 155 140 225
+           L140 330
+           C140 340 155 340 160 330
+           C165 320 175 320 180 330
+           C185 340 195 340 200 330
+           C205 320 215 320 220 330
+           C225 340 235 340 240 330
+           C245 320 255 320 260 330
+           C265 340 275 340 280 330
+           C285 320 295 320 300 330
+           C305 340 315 340 320 330
+           C325 320 335 320 340 330
+           C345 340 360 340 360 330
+           L360 225
+           C360 155 310 100 256 100Z"
+        fill="url(#ghost)" opacity="0.9"/>
+
+  <!-- Ghost eyes -->
+  <ellipse cx="215" cy="210" rx="22" ry="26" fill="#1a1a2e"/>
+  <ellipse cx="295" cy="210" rx="22" ry="26" fill="#1a1a2e"/>
+
+  <!-- Eye shine -->
+  <circle cx="222" cy="200" r="7" fill="#e2e0ff" opacity="0.8"/>
+  <circle cx="302" cy="200" r="7" fill="#e2e0ff" opacity="0.8"/>
+
+  <!-- Cute smile -->
+  <path d="M235 255 Q256 275 275 255" stroke="#1a1a2e" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>
