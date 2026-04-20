@@ -1,6 +1,6 @@
 # Prompt Forge
 
-A 4-pass prompt optimization engine that combines 7 techniques into a single pipeline — iterating until your prompt scores 5/5 across all quality dimensions.
+A 5-pass prompt optimization engine that combines 7 techniques into a single pipeline — iterating until your prompt scores 5/5 across all quality dimensions.
 
 Prompt Forge is a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code) that takes any prompt and runs it through decomposition, bracketing, adversarial validation, and compression. It doesn't just rewrite your prompt — it scores it, attacks it, and proves the final version is better.
 
