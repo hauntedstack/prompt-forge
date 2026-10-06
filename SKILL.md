@@ -1,256 +1,248 @@
 ---
 name: prompt-forge
-description: 4-pass prompt-optimaliseringsmotor som kombinerer 7 skills til en pipeline som garanterer 5/5 i alle kvalitetsdimensjoner. Tar en bruker-prompt og returnerer en optimalisert versjon med full scoringsrapport.
-trigger: Brukeren ber om å optimalisere, forbedre, eller vurdere en prompt. Også når brukeren sier "prompt forge", "optimaliser prompt", "gjør denne prompten bedre", eller "5/5 prompt".
+description: >
+  A 5-phase prompt generator pipeline that produces high-quality, structurally sound prompts for any task.
+  Use this skill whenever the user asks to create, build, design, or write a prompt — or when they describe
+  a task and want a prompt that handles it well. Also trigger when the user says "lag en prompt", "skriv en
+  prompt", "prompt for", "make me a prompt", "prompten for X", or any variation of "I need a prompt that...".
+  Trigger even when the user describes what they want to accomplish without explicitly saying "prompt" — if
+  the deliverable is clearly a reusable prompt template, use this skill.
 ---
 
-# PROMPT FORGE — 4-Pass Prompt-Optimaliseringsmotor
+# Prompt Forge — 5-Phase Prompt Generator Pipeline
 
-## SYSTEM
+Build prompts that have been through requirement analysis, quality calibration, structural validation,
+adversarial stress-testing, and optimal compression — not just vibed into existence.
 
-Du er en prompt-optimaliseringsmotor som kjører brukerens prompt gjennom en 4-pass pipeline med 7 integrerte teknikker. Målet er 5/5 i alle fem kvalitetsdimensjoner.
+## When the user triggers this skill
 
-### KVALITETSDIMENSJONER (scoring 1-5)
+1. Ask what the prompt should accomplish (the task, the target model, the context)
+2. Run all 5 phases in sequence
+3. Deliver only the final compressed prompt + a brief build log
 
-| Dim | Navn | 1/5 | 3/5 | 5/5 |
-|-----|------|-----|-----|-----|
-| K1 | **KLARHET** | Tvetydig intensjon, LLM må gjette | Hovedintensjon klar, detaljer åpne | Entydig intensjon, ingen tolkningsrom |
-| K2 | **SPESIFISITET** | Ingen constraints, generisk output | Noen krav, men hull i spesifikasjon | Presise krav, format, lengde, tone, scope definert |
-| K3 | **STRUKTUR** | Flat tekstblokk, ingen organisering | Noe struktur, men suboptimal for LLM | Optimalt organisert for LLM-kognisjon — hierarki, separasjon, sekvens |
-| K4 | **ROBUSTHET** | Feiler ved kanttilfeller, ingen feilhåndtering | Håndterer vanlige tilfeller | Eksplisitt kanttilfelle-håndtering, feilmodi adressert, graceful degradation |
-| K5 | **EFFEKTIVITET** | Redundant, oppblåst, token-sløsing | Noe redundans, akseptabel lengde | Hver setning bærer unik verdi, optimal token-økonomi |
-
-**Mål: Alle dimensjoner ≥ 5/5 i final output.**
-
----
-
-## PASS 1 — DEKOMPONERING
-
-> *Teknikker: prompt-ablation-analysis + recursive-audience-modeling (tilpasset)*
-
-### Steg 1.1: KOMPONENT-INVENTAR (Ablation)
-
-Dekomponér brukerens prompt i diskrete komponenter. Klassifisér hver:
-
-```
-KOMPONENT: [komponentnavn]
-TYPE: CRITICAL | REINFORCING | REDUNDANT | DECORATIVE
-FUNKSJON: [hva denne komponenten driver i LLM-atferd]
-INTERAKSJONER: [hvilke andre komponenter denne avhenger av eller påvirker]
-```
-
-Regler:
-- CRITICAL: Fjerning endrer output fundamentalt
-- REINFORCING: Forsterker en CRITICAL-komponent
-- REDUNDANT: Sier det samme som en annen komponent
-- DECORATIVE: Ingen målbar effekt på output
-
-### Steg 1.2: LLM-PROSESSERINGSMODELL (Audience-modell tilpasset for LLM)
-
-Modellér hvordan LLM-en vil prosessere prompten:
-
-```
-KUNNSKAPSTILSTAND:
-- Hva LLM-en vet med sikkerhet gitt prompten: [liste]
-- Hva LLM-en må inferere/anta: [liste — dette er svakhetspunkter]
-- Hva LLM-en ikke kan vite fra prompten: [liste — dette er hull]
-
-PROSESSERINGSRISIKO:
-- Tvetydighetspunkter der LLM vil defaulte til generisk output: [liste]
-- Steder der instruksjoner kan kollidere: [liste]
-- Implisitte antakelser LLM-en vil gjøre: [liste]
-
-MOTIVASJONSSTRUKTUR:
-- Hva driver LLM-en til å velge format/tone/dybde: [analyse]
-- Manglende styringssignaler: [liste]
-```
-
-### Steg 1.3: INITIAL SCORING
-
-Gi initial score per dimensjon (K1-K5) med begrunnelse (én setning per dimensjon). Identifisér de 2-3 dimensjonene med lavest score — disse er prioritetsmål for Pass 2.
+If the user provides enough context upfront, skip clarification and go straight to Phase 1.
 
 ---
 
-## PASS 2 — BRACKETING OG PRIORITERING
+## Phase 1 — Requirement Mapping (Backward Dependency Decomposition)
 
-> *Teknikker: generative-bracketing + constraint-priority-stack*
-
-### Steg 2.1: FLOOR-VERSJON (1/5)
-
-Skriv den verste plausible tolkningen av prompten — den versjonen som en LLM i verste fall ville produsere. Merk hvert feilpunkt:
+Before writing anything, map what the prompt *must achieve*.
 
 ```
-[FLOOR-OUTPUT]
-[FEIL: tvetydighet] ... tekst som viser feil tolkning ...
-[FEIL: manglende constraint] ... tekst som viser generisk default ...
-[FEIL: struktursvikt] ... tekst som viser uorganisert output ...
+Think about the prompt's desired outcome: [USER'S STATED GOAL]
+
+Work backward from that outcome:
+
+1. TERMINAL CONDITIONS — What specific things must the prompt's output satisfy?
+   List each as a testable yes/no assertion.
+
+2. DEPENDENCY TREE — For each terminal condition, ask: "What must the prompt
+   explicitly instruct for this to hold?" Recurse until you reach:
+   - GIVEN: The model will do this by default without instruction
+   - NEEDS INSTRUCTION: Must be explicitly stated in the prompt
+   - ASSUMED: Depends on the user's context — flag for the user to confirm
+
+3. RISK NODES — Which ASSUMED dependencies carry the most risk?
+   Which dependency chain is longest (= most likely failure point)?
+
+4. ROLE CLASSIFICATION — For every element you plan to include in the prompt,
+   classify it as exactly one of:
+   - INPUT: the user supplies this at runtime (becomes a [VARIABLE])
+   - INSTRUCTION: tells the agent what to do or how to do it
+   - OUTPUT_SPEC: defines the shape, format, or quality of the result
+   - CONTEXT: stable background the agent needs to operate
+
+   If an element doesn't fit any category — e.g., a list of candidate answers,
+   a pre-filtered shortlist, an example result, or an intermediate finding —
+   it is SCOPE LEAKAGE. The prompt is doing the agent's job. Replace with an
+   INSTRUCTION that tells the agent to produce it.
+
+   Red flags that signal scope leakage:
+   - Specific named entities (companies, products, sources) when the task is
+     to find them
+   - Pre-built shortlists where the task is to build a shortlist
+   - Pre-filled answers where the task is to produce answers
+   - "Minimum these..." enumerations that constrain what the agent considers
 ```
 
-### Steg 2.2: CEILING-VERSJON (5/5)
-
-Skriv den optimale prompten — versjonen som ville score 5/5 i alle dimensjoner. Ikke begrens deg av original prompt, men behold intensjonen.
-
-### Steg 2.3: DELTA-ANALYSE
-
-For hvert gap mellom floor og ceiling, klassifisér:
-
-```
-DELTA [nummer]:
-  GAP: [hva mangler i original vs. ceiling]
-  DIMENSJON: K1/K2/K3/K4/K5
-  TYPE: (a) informasjonstetthet | (b) strukturvalg | (c) tone/stemme | (d) LLM-styring | (e) spesifisitet | (f) robusthet
-  IMPLEMENTERING: [konkret endring som lukker gapet]
-```
-
-### Steg 2.4: CONSTRAINT-STACK
-
-Organiser alle krav prompten må oppfylle i prioritert hierarki:
-
-```
-P0 — UFRAVIKELIG (prompten feiler hvis disse brytes):
-  - [krav med begrunnelse]
-
-P1 — STERKT (bør oppfylles, men kan nedgraderes ved P0-konflikt):
-  - [krav med begrunnelse]
-
-P2 — FORETRUKKET (ønskelig, men ofres først ved konflikt):
-  - [krav med begrunnelse]
-```
-
-Inkludér constraints fra:
-- Brukerens eksplisitte krav
-- Implisitte krav identifisert i Pass 1
-- LLM-prosesseringskrav (struktur, klarhet)
-- Ceiling-versjonen
+**Output of Phase 1:** A structured list of everything the prompt must contain, with priority ordering based on risk, AND every element classified by role. Scope leakage is converted to instructions before Phase 2 begins.
 
 ---
 
-## PASS 3 — OPTIMALISERING OG VALIDERING
+## Phase 2 — Quality Space Mapping (Generative Bracketing)
 
-> *Teknikker: optimalisert rewrite + adversarial-claim-decomposition*
-
-### Steg 3.1: OPTIMALISERT PROMPT
-
-Skriv den optimaliserte prompten. Denne MÅ:
-- Lukke alle delta-gap fra Steg 2.3
-- Oppfylle alle P0-constraints
-- Oppfylle alle P1-constraints (dokumentér unntak)
-- Oppfylle flest mulig P2-constraints
-- Bruke optimal struktur for LLM-prosessering
-
-Strukturprinsipper:
-- Hierarkisk organisering (viktigst først)
-- Eksplisitt rolledefinisjon hvis relevant
-- Klare seksjonsavgrensninger
-- Output-format spesifisert eksplisitt
-- Kanttilfeller adressert inline
-- Eksempler der tvetydighet ellers ville oppstå
-
-### Steg 3.2: ADVERSARIAL VALIDERING
-
-For hver vesentlig endring fra original til optimalisert, utfør steelman/verdict:
+Generate two extremes to calibrate what "good" and "bad" look like for this specific prompt task.
 
 ```
-ENDRING [nummer]: [beskrivelse av endringen]
-STEELMAN MOT ENDRINGEN: [sterkest mulig argument for å IKKE gjøre denne endringen]
-VERDICT: BEHOLDES | REVERTERES | JUSTERES
-BEGRUNNELSE: [1-2 setninger]
+FLOOR PROMPT:
+Write a version of this prompt that technically asks for the right thing but
+commits the most common prompt-writing failures. Label each failure inline:
+[FAILURE: vague instruction], [FAILURE: no output format], [FAILURE: missing
+context], etc.
+
+CEILING PROMPT:
+Write the best version you can — the result of unlimited iteration. After
+writing it, name the 3-5 specific qualities that make it excellent. Not generic
+qualities like "clear" — name the specific structural moves.
+
+DELTA ANALYSIS:
+What are the 3-5 most important differences between Floor and Ceiling?
+Classify each as:
+(a) Specificity of instruction
+(b) Constraint design
+(c) Output format guidance
+(d) Context/role framing
+(e) Error handling / edge case coverage
+(f) Other — name it
+
+Rank by impact on output quality.
 ```
 
-Verdicts:
-- **BEHOLDES**: Steelman er svakere enn begrunnelsen for endringen
-- **REVERTERES**: Steelman avdekker at endringen faktisk svekker prompten
-- **JUSTERES**: Steelman avdekker en delvis gyldig bekymring — juster endringen
-
-Etter adversarial validering: oppdatér den optimaliserte prompten med eventuelle reverteringer/justeringer.
+**Output of Phase 2:** The Ceiling prompt as a working draft, plus ranked delta dimensions that define what matters most for this prompt.
 
 ---
 
-## PASS 4 — BLINDSONE-SJEKK, KOMPRESJON OG FINAL SCORING
+## Phase 3 — Structural Validation (Prompt Ablation Analysis)
 
-> *Teknikker: orthogonal-critique-injection + convergent-self-distillation*
-
-### Steg 4.1: ORTOGONAL BLINDSONE-SJEKK
-
-Analyser den optimaliserte prompten langs fire dimensjoner som IKKE var del av optimaliseringsaksen:
+Take the Ceiling prompt from Phase 2 and analyze its structural mechanics.
 
 ```
-MISFIRE-ANALYSE: Sier prompten noe den ikke mener? Kan LLM-en mistolke intensjonen?
-FRAVÆR-AUDIT: Hva har prompten gitt opp? Hvilke use-cases dekkes ikke?
-PERSPEKTIV-DIVERGENS: Ville en annen type bruker (nybegynner, ekspert, annen domene) reagere negativt på denne prompten?
-TEMPORAL HOLDBARHET: Når slutter denne prompten å fungere? (modellversjoner, API-endringer, domeneendringer)
+Decompose the prompt into functional components (C1, C2, C3...).
+Each component = one instruction, constraint, example, role, or format directive.
+
+For each component, classify:
+- CRITICAL: Output changes fundamentally without it. State what breaks.
+- REINFORCING: Output degrades but remains functional. State what degrades.
+- REDUNDANT: Another component already covers this. Name which one.
+- DECORATIVE: No measurable effect. State why it's inert.
+
+INTERACTION MAP:
+Identify component pairs where one depends on the other's presence.
+Format: "C3 + C7: C3's format constraint only works because C7 defines
+the output structure it formats within."
+
+Flag any REDUNDANT or DECORATIVE components for removal.
+Flag any broken interactions where a dependency partner is weak or missing.
 ```
 
-For hvert funn: SEVERITY (HØY/MEDIUM/LAV) + anbefalt tiltak.
-
-Integrer HØY-severity funn i prompten. MEDIUM: integrer hvis det kan gjøres uten å svekke andre dimensjoner. LAV: dokumentér men ikke endre.
-
-### Steg 4.2: KOMPRESJON (Convergent Self-Distillation)
-
-Tag hver setning i den optimaliserte prompten:
-- `[unique-high-value]` — bærer unik informasjon som ikke finnes andre steder
-- `[reinforcing]` — forsterker noe som allerede er sagt
-- `[redundant]` — sier det samme som en annen setning
-- `[low-value]` — bidrar minimalt til output-kvalitet
-
-Fjern alle `[redundant]`. Vurdér `[low-value]` — behold kun hvis fjerning svekker en K-dimensjon. Konsolidér `[reinforcing]` der mulig uten tap.
-
-**Konvergenstest**: Hvis ytterligere kompresjon ville kreve fjerning av `[unique-high-value]`-innhold, er naturlig tetthet nådd. Stopp.
-
-### Steg 4.3: FINAL SCORING OG LEVERING
-
-```
-╔══════════════════════════════════════════════╗
-║          PROMPT FORGE — RESULTAT             ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  K1 KLARHET:      [●●●●●] X/5 → Y/5        ║
-║  K2 SPESIFISITET: [●●●●●] X/5 → Y/5        ║
-║  K3 STRUKTUR:     [●●●●●] X/5 → Y/5        ║
-║  K4 ROBUSTHET:    [●●●●●] X/5 → Y/5        ║
-║  K5 EFFEKTIVITET: [●●●●●] X/5 → Y/5        ║
-║                                              ║
-║  TOTAL: XX/25 → YY/25                       ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  CONSTRAINTS: P0 [X/X] P1 [X/X] P2 [X/X]   ║
-║  ADVERSARIAL: X beholdt, X justert, X revert ║
-║  BLINDSONER: X høy, X medium, X lav         ║
-║  KOMPRESJON: X% reduksjon fra peak           ║
-╚══════════════════════════════════════════════╝
-```
-
-Deretter lever:
-
-1. **OPTIMALISERT PROMPT** — den ferdige, bruksklare prompten
-2. **ENDRINGSLOGG** — kort liste over de viktigste endringene og hvorfor
-3. **CONSTRAINT SATISFACTION REPORT** — hvilke P0/P1/P2 som er oppfylt/ofret
+**Output of Phase 3:** A validated prompt with dead weight identified, interactions mapped, and structural integrity confirmed. Apply fixes before proceeding.
 
 ---
 
-## REGLER
+## Phase 4 — Adversarial Stress Test (Orthogonal Critique Injection)
 
-1. **Fullstendig pipeline**: Kjør alltid alle 4 pass. Ingen snarveier.
-2. **Vis arbeidet**: Hvert pass produserer synlig output. Brukeren skal kunne følge resonnementet.
-3. **Bevar intensjon**: Den optimaliserte prompten må gjøre det brukeren MENTE, ikke det de SKREV. Hvis det er tvetydig, spør.
-4. **Score ærlig**: Ikke inflatér scores. 5/5 betyr at dimensjonen ikke kan forbedres uten å endre selve oppgaven.
-5. **Adversarial integritet**: Steelman-argumenter må være ekte motargumenter, ikke stråmenn.
-6. **Kompresjon ≠ forkortelse**: Målet er tetthet (verdi per token), ikke korthet.
-7. **Dimensjoner trumfer**: Hvis en forbedring på én dimensjon svekker en annen, prioritér den svakeste dimensjonen — løft gulvet, ikke taket.
-8. **Domenetilpasning**: Hvis prompten er for kode, vektlegg K4 (robusthet). Hvis for skriving, vektlegg K2 (spesifisitet). Hvis for analyse, vektlegg K1 (klarhet).
+Attack the prompt from angles that weren't optimized during construction.
 
-## UTGANGSFORMAT
+```
+List the 2-3 qualities you optimized for when building this prompt.
 
-Standardformat er full pipeline med alle 4 pass synlig. Hvis brukeren ber om kun resultat, lever bare OPTIMALISERT PROMPT + scorecard fra Steg 4.3.
+Now evaluate ONLY on these orthogonal dimensions — do NOT re-evaluate
+the dimensions you already optimized for:
 
-## MULTI-PROMPT MODUS
+1. MISFIRE ANALYSIS: How could a model misinterpret this prompt? What's the
+   most likely way it produces the *opposite* of the intended output? Name
+   the specific instruction that enables the misreading.
 
-Hvis brukeren gir flere prompts: kjør pipeline på hver separat, deretter lever en sammenlignende scorecard-tabell.
+2. ABSENCE AUDIT: What would a prompt engineering expert's first critique be?
+   What edge case or failure mode did you skip because it was hard to
+   instruct, not because it was irrelevant?
 
-## ITERASJON
+3. USER DIVERGENCE: Imagine three very different users pasting this prompt
+   with different [VARIABLE] inputs. Which user gets the worst result?
+   What about their input breaks the prompt's assumptions?
 
-Etter levering kan brukeren be om:
-- `fokus K[n]` — re-run Pass 3-4 med ekstra vekt på dimensjon n
-- `mer robust` — re-run Pass 2-4 med utvidet kanttilfelle-analyse
-- `kortere` — re-run Pass 4.2 med aggressivere kompresjon
-- `forklar [endring]` — utdyp begrunnelsen for en spesifikk endring
+4. MODEL DIVERGENCE: How would this prompt behave differently on a weaker
+   model (e.g., Haiku-class vs Opus-class)? Which instructions would be
+   the first to degrade?
+
+5. SCOPE LEAKAGE AUDIT: Does the prompt contain concrete answers, candidate
+   lists, named entities, pre-filtered shortlists, or intermediate results
+   that belong to the agent's runtime work? Apply the test: "If I removed
+   this element, would the agent still be able to produce it themselves?"
+   If yes, the element is doing the agent's job and narrows the solution
+   space prematurely. Replace with an instruction that mandates the agent
+   produce it, including any quality criteria the original list implied.
+
+   Pay special attention to elements that *feel* like helpful specificity
+   but actually constrain the search — e.g., "consider banks A, B, C" when
+   the task is to research banks. The Ceiling prompt from Phase 2 is
+   especially vulnerable here, since "best version" pressure pushes toward
+   filling in answers.
+
+6. EMPTY INPUT AUDIT: For each [VARIABLE] the prompt defines, ask what happens
+   when it arrives empty, or still as a literal placeholder, at runtime. A prompt
+   that silently fills the gap with assumed defaults and proceeds is broken: it
+   produces confident output for a task the user never actually specified. The
+   prompt must instead detect the unfilled input and either ask for it or stop
+   with a short fill-in template — never invent the missing content. State inside
+   the prompt the trust order for inputs: what the user actually wrote first, then
+   evidence the agent can observe itself, then a default only for an input the
+   prompt explicitly marks optional. Square-bracket placeholder text left unfilled
+   counts as missing, never as content.
+
+Revise to address the highest-impact finding. The revision must not break
+any CRITICAL components or INTERACTION pairs from Phase 3.
+
+If no finding rates above "minor": skip revision, proceed to Phase 5.
+```
+
+**Output of Phase 4:** A stress-tested prompt with the most dangerous failure modes patched.
+
+---
+
+## Phase 5 — Optimal Compression (Convergent Self-Distillation)
+
+Compress to natural density — the point where every instruction carries unique weight.
+
+```
+ROUND 1 — COMPRESSION (target: 60% of current length):
+For every cut, tag it:
+[redundant] — said elsewhere in the prompt
+[low-value] — true but not important enough to justify its tokens
+[decorative] — no measurable effect on output
+
+Preserve everything that would be tagged [critical] if you tried to cut it.
+
+ROUND 2 — FIDELITY CHECK:
+Compare compressed version against the Phase 4 version:
+- Anything cut that shouldn't have been? Restore it.
+- Anything kept that should go? Remove it.
+- Any instruction distorted during compression? Fix it.
+
+Verify all CRITICAL components from Phase 3 survived.
+Verify all INTERACTION pairs from Phase 3 are intact.
+
+ROUND 3 — CONVERGENCE TEST:
+Attempt 20% further compression. If every remaining candidate cut would
+remove a [critical] instruction, the prompt has converged — it's done.
+
+Maximum 4 compression rounds total.
+```
+
+**Output of Phase 5:** The final prompt at its natural density.
+
+---
+
+## Delivery Format
+
+Present to the user:
+
+1. **The final prompt** — copy-paste ready, with `[VARIABLE]` placeholders
+2. **Build log** (compact) — one sentence per phase summarizing what was found and changed:
+   - Phase 1: key requirements discovered
+   - Phase 2: most important quality delta
+   - Phase 3: components removed or fixed
+   - Phase 4: highest-impact vulnerability patched
+   - Phase 5: compression ratio achieved
+
+Do NOT show intermediate phases unless the user asks to see them.
+
+---
+
+## Guidelines
+
+- Every `[VARIABLE]` placeholder must be self-explanatory. Use descriptive names like `[TARGET_AUDIENCE]`, never `[X]`.
+- Maximum 4 variables per prompt. If more are needed, consolidate or provide sensible defaults.
+- The final prompt must work when pasted directly — no external setup, no API access, no system prompt required.
+- If the user's task is simple enough that a 2-sentence prompt would work, say so. Don't over-engineer. The pipeline is for prompts where structural quality matters.
+- If the user provides a prompt they already have and wants it improved, skip Phase 1 and Phase 2 — enter at Phase 3 (ablation) with their existing prompt.
